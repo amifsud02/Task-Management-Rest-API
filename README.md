@@ -2,10 +2,7 @@
 
 | Endpoint                                           | Method | Description                                   | Implemented |
 | -------------------------------------------------- | ------ | --------------------------------------------- | ----------- |
-| `/api/auth`                                        | POST   | Authenticate user and get token               | No |
-| `/api/users`                                       | POST   | Register a new user                           | No |
-| `/api/users/:id`                                   | PUT    | Update user profile                           | No |
-| `/api/users/:id`                                   | DELETE | Delete user profile                           | No |
+| `/api/login/`                                   | POST | Login and Generate Bearer Token                       | No |
 | Task                                               |        |                                               | ----------- |
 | `/api/task/:id`                                    | POST   | Create a new task                             | No |
 | `/api/task/`                                       | GET    | Get a list of all tasks                       | No |

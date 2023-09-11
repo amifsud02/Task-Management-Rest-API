@@ -4,13 +4,75 @@ This API is built following the MVC architecture and is designed to perform CRUD
 
 ## How To Use
 
-- clone this reponsitory
-- npm i
-- npm start
-- open postman or any other api testing platforms
-- Run these commands to test out the usability of the application
+1. Clone this repository.
+2. Run `npm install`.
+3. Run `npm start`.
+4. Open Postman or any other API testing platform.
+5. Execute the following cURL commands to test the application's usability.
 
-- 
+#### Get All Tasks
+
+ ```
+  curl --location 'http://localhost:3333/api/Task' \
+  --data ''
+```
+
+#### Get Tasks (Filters)
+
+```
+curl --location 'http://localhost:3333/api/Task?status=true' \
+--data ''
+```
+
+#### Get Tasks (SortBy and SortOrder)
+
+```
+curl --location 'http://localhost:3333/api/Task?sortBy=dueDate&sortOrder=-1' \
+--data ''
+```
+
+#### Get Tasks (Pagination and Limit)
+
+```
+curl --location 'http://localhost:3333/api/Task?page=1&limit=2' \
+--data ''
+```
+
+#### Create Task
+
+```
+curl --location 'http://localhost:3333/api/Task' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzMzNjFhNC01MGQ4LTExZWUtYmU1Ni0wMjQyYWMxMjAwMDIiLCJpYXQiOjE2OTQ0NjE2MzAsImV4cCI6MTY5NDQ2NTIzMH0.JcXZVjHPBFDuvGC4OwED5dJB2qHdAn7g2rlajqxlB16vXkp9J3JQ74U93lKmOSdbL_HXa71GvlUenM8UK7KgHuyHYI5jKf7aDQzFFUy2-9WXU2tavHlB6rwfRSz78bdieMYJ3fjnau8Tk81lSuJBKkeD7YrUZBBkT5348bPOSEtPOW9y13l-ROfsYN_sf7Bdb3HlUpZNGeEphnoCOfqCjabeh4Aq3FnxpnLwLeikmVZr9Gk8HyEZ69_8nNmgpcDPYwxUxl0gTO70PGD9UJ943mW9HbjQ5wX9lmvz0HagBCbpD3VSejT-VBFHPG0foioz0uIXSacCnkFf_izE_WBWCg' \
+--data '{
+    "title": "This is a test to delete asdasd",
+    "dueDate": "2023-04-31"
+}'
+```
+
+#### Get Task By ID
+
+```
+curl --location 'http://localhost:3333/api/Task/64fafb380e521e6a4fdd17e6'
+```
+
+#### Delete Task By ID
+
+```
+curl --location --request DELETE 'http://localhost:3333/api/Task/64ff5520b35e2fff726a5f76'
+--header 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzMzNjFhNC01MGQ4LTExZWUtYmU1Ni0wMjQyYWMxMjAwMDIiLCJpYXQiOjE2OTQ0NjE2MzAsImV4cCI6MTY5NDQ2NTIzMH0.JcXZVjHPBFDuvGC4OwED5dJB2qHdAn7g2rlajqxlB16vXkp9J3JQ74U93lKmOSdbL_HXa71GvlUenM8UK7KgHuyHYI5jKf7aDQzFFUy2-9WXU2tavHlB6rwfRSz78bdieMYJ3fjnau8Tk81lSuJBKkeD7YrUZBBkT5348bPOSEtPOW9y13l-ROfsYN_sf7Bdb3HlUpZNGeEphnoCOfqCjabeh4Aq3FnxpnLwLeikmVZr9Gk8HyEZ69_8nNmgpcDPYwxUxl0gTO70PGD9UJ943mW9HbjQ5wX9lmvz0HagBCbpD3VSejT-VBFHPG0foioz0uIXSacCnkFf_izE_WBWCg' \
+```
+
+#### Update Task By ID
+
+```
+curl --location --request PUT 'http://localhost:3333/api/Task/64fafb380e521e6a4fdd17e6' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzMzNjFhNC01MGQ4LTExZWUtYmU1Ni0wMjQyYWMxMjAwMDIiLCJpYXQiOjE2OTQ0NjE2MzAsImV4cCI6MTY5NDQ2NTIzMH0.JcXZVjHPBFDuvGC4OwED5dJB2qHdAn7g2rlajqxlB16vXkp9J3JQ74U93lKmOSdbL_HXa71GvlUenM8UK7KgHuyHYI5jKf7aDQzFFUy2-9WXU2tavHlB6rwfRSz78bdieMYJ3fjnau8Tk81lSuJBKkeD7YrUZBBkT5348bPOSEtPOW9y13l-ROfsYN_sf7Bdb3HlUpZNGeEphnoCOfqCjabeh4Aq3FnxpnLwLeikmVZr9Gk8HyEZ69_8nNmgpcDPYwxUxl0gTO70PGD9UJ943mW9HbjQ5wX9lmvz0HagBCbpD3VSejT-VBFHPG0foioz0uIXSacCnkFf_izE_WBWCg' \
+--data '{
+    "title": "This has changed."
+}'
+```
 
 ## Endpoints
 

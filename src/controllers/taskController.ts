@@ -75,7 +75,7 @@ export class TaskController extends BaseController {
                     query["completed"] = Boolean(parsedStatus);
                 }
             }
-            
+
             const sort: { [key: string]: SortDirection } = {}; // 1 or -1
     
             // If only 'sortBy' is provided, apply default sortOrder of 1
@@ -121,7 +121,11 @@ export class TaskController extends BaseController {
                     .sort(sort)
                     .toArray()
     
-                return res.send({data: tasks, "body": req.query});
+                return  res.status(200).send({
+                            "success": true,
+                            "data": tasks,
+                            "timestamp": new Date().toISOString(),
+                        });
             }
     
             console.log(query)
@@ -130,7 +134,11 @@ export class TaskController extends BaseController {
                 .sort(sort)
                 .toArray();
 
-            res.send({data: tasks, "body": req.query});
+            res.status(200).send({
+                "success": true,
+                "data": tasks,
+                "timestamp": new Date().toISOString(),
+            });
     
         } catch (err) {
             console.log(err);
@@ -141,14 +149,6 @@ export class TaskController extends BaseController {
             }
         }
     }
-    
-    /**
-     * Filter By: 
-     *      Date
-     *      Status - TODO | DOING | REVIEW | COMPLETED
-     *      User 
-     *      TAGS - BUG | FEATURE | LOW-PRIORITY | HIGH PRIORITY | R&D | ON-HOLD | SECURITY
-    */
 
     async create(req: Request, res: Response): Promise<any> {
         let connection; // For Pooling

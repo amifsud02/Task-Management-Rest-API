@@ -5,6 +5,9 @@ import 'dotenv/config';
 const app = express()
 const port = 3333
 
+app.use(express.json());
+
+
 app.use(taskRouter);
 
 app.get('/', (req, res) => {

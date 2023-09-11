@@ -2,7 +2,7 @@ import 'dotenv/config'; // Handling environment variables
 
 import { Request, Response } from "express";
 import { BaseController } from "./baseController";
-import { MongoClient, ServerApiVersion, SortDirection } from 'mongodb';
+import { MongoClient, ServerApiVersion, SortDirection, Collection } from 'mongodb';
 
 export class TaskController extends BaseController {
     
@@ -54,10 +54,6 @@ export class TaskController extends BaseController {
         }
     }
 
-    async closeDB(): Promise<void> {
-        await TaskController.client.close();
-        console.log('MongoDB disconnected');
-    }
 
     async index(req: Request, res: Response): Promise<any> {
         let connection; // For Pooling
@@ -65,7 +61,7 @@ export class TaskController extends BaseController {
         try {
             connection = await this.connectDB();
             const db = TaskController.client.db(this.dbName);
-            const collection = db.collection('tasks');
+            const collection: Collection = db.collection('tasks');
     
             let { status, sortBy, sortOrder, page, limit } = req.query;
     
@@ -152,14 +148,45 @@ export class TaskController extends BaseController {
      *      TAGS - BUG | FEATURE | LOW-PRIORITY | HIGH PRIORITY | R&D | ON-HOLD | SECURITY
     */
 
-    create(req: Request, res: Response): Promise<any> {
-        //TODO Create a new Task  
+    async create(req: Request, res: Response): Promise<any> {
+        let connection; // For Pooling
+
         try {
+            const { title, description, dueDate, completed } = req.body;
 
-        } catch (e) {
+            if(!title || !dueDate) {
+                res.status(400).send('Missing required fields');
+                return;
+            }
 
+            if (isNaN(new Date(dueDate).getTime())) {
+                res.status(400).send('Invalid date format for dueDate');
+                return;
+            }
+
+            connection = await this.connectDB();
+            const db = TaskController.client.db(this.dbName);
+            const collection: Collection= db.collection('tasks');
+
+            const result = await collection.insertOne({
+                title,
+                description,
+                dueDate: new Date(dueDate),
+                completed: completed || false,
+            })
+
+            res.status(201)
+                .json({ 
+                    success: true,
+                    message: result
+                });
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
         } finally {
-            return Promise.resolve();
+            if(connection) {
+                connection.release();
+            }        
         }
     }
 

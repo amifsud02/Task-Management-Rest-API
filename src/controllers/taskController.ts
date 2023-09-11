@@ -2,7 +2,9 @@ import 'dotenv/config'; // Handling environment variables
 
 import { Request, Response } from "express";
 import { BaseController } from "./baseController";
-import { MongoClient, ServerApiVersion, SortDirection, Collection } from 'mongodb';
+import { MongoClient, ServerApiVersion, SortDirection, Collection, ObjectId } from 'mongodb';
+import { Task } from '../models/Task';
+import { describe } from 'node:test';
 
 export class TaskController extends BaseController {
     
@@ -190,9 +192,36 @@ export class TaskController extends BaseController {
         }
     }
 
-    show(req: Request, res: Response): Promise<any> {
-        // Fetch One Task
+    async show(req: Request, res: Response): Promise<any> {
+        let connection;
+        
         try {
+            const _id  = req.params.id;
+
+            if(!ObjectId.isValid(_id)) {
+                res.status(400).send('Invalid _id');
+                return;
+            }
+
+            connection = await this.connectDB();
+            const db = TaskController.client.db(this.dbName);
+            const collection: Collection= db.collection('tasks');
+
+            const task = await collection.findOne({_id: new ObjectId(_id)});
+
+            if(task) {
+                res.status(200).send({
+                    success: true,
+                    data: task,
+                    timestamp: new Date().toISOString(),
+                })
+            } else {
+                res.status(500).send({
+                    success: false,
+                    data: {},
+                    timestamp: new Date().toISOString(),
+                })
+            }
 
         } catch (e) {
 
@@ -201,10 +230,73 @@ export class TaskController extends BaseController {
         }
     }
 
-    update(req: Request, res: Response): Promise<any> {
-        // Update One Task
+    async update(req: Request, res: Response): Promise<any> {
+        let connection;
+        
         try {
+            const _id  = req.params.id;
 
+            if(!ObjectId.isValid(_id)) {
+                res.status(400).send({
+                    success: false,
+                    message: 'Invalid ID',
+                    timestamp: new Date().toISOString(),
+                })
+
+                return;
+            }
+
+            const { title, description, dueDate, completed } = req.body;
+
+            if(!title && !description && !dueDate && !completed === undefined) {
+                res.status(400).send({
+                    success: false,
+                    message: 'No Fields to update',
+                    timestamp: new Date().toISOString(),
+                })
+
+                return;
+            }
+                   
+            const updateFields: Partial<Task> = {};
+            if (title) {
+                updateFields.title = title;
+            }
+
+            if(description) {
+                updateFields.description = description;
+            }
+
+            if(dueDate) {
+                updateFields.dueDate = new Date(dueDate);
+            }
+
+            if(completed !== undefined) {
+                updateFields.completed = completed;
+            }
+
+            connection = await this.connectDB();
+            const db = TaskController.client.db(this.dbName);
+            const collection: Collection= db.collection('tasks');
+
+            const result = await collection.updateOne(
+                { _id: new ObjectId(_id) }, 
+                { $set: updateFields }
+            )
+
+            if(0 === result.matchedCount) {
+                res.status(404).send({
+                    success: false,
+                    message: 'Task not found',
+                    timestamp: new Date().toISOString(),
+                })
+            } else {
+                res.status(200).send({
+                    success: true,
+                    data: result,
+                    timestamp: new Date().toISOString(),
+                })
+            }
         } catch (e) {
 
         } finally {
@@ -212,9 +304,36 @@ export class TaskController extends BaseController {
         }
     }
 
-    delete(req: Request, res: Response): Promise<any> {
-        // Delete One Task
+    async delete(req: Request, res: Response): Promise<any> {
+        let connection;
+        
         try {
+            const _id  = req.params.id;
+
+            if(!ObjectId.isValid(_id)) {
+                res.status(400).send('Invalid _id');
+                return;
+            }
+
+            connection = await this.connectDB();
+            const db = TaskController.client.db(this.dbName);
+            const collection: Collection= db.collection('tasks');
+
+            const task = await collection.deleteOne({_id: new ObjectId(_id)});
+
+            if(task) {
+                res.status(200).send({
+                    success: true,
+                    message: `${_id} was successfully deleted.`,
+                    timestamp: new Date().toISOString(),
+                })
+            } else {
+                res.status(500).send({
+                    success: false,
+                    message: 'Error occurred',
+                    timestamp: new Date().toISOString(),
+                })
+            }
 
         } catch (e) {
 

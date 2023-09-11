@@ -4,7 +4,6 @@ import { Request, Response } from "express";
 import { BaseController } from "./baseController";
 import { MongoClient, ServerApiVersion, SortDirection, Collection, ObjectId } from 'mongodb';
 import { Task } from '../models/Task';
-import { describe } from 'node:test';
 
 export class TaskController extends BaseController {
     
@@ -16,7 +15,6 @@ export class TaskController extends BaseController {
 
     readonly LIMIT: 10; // 10 per Page
     readonly PAGE: 1; // No Skips
-
 
     constructor() {
         super();
@@ -69,13 +67,15 @@ export class TaskController extends BaseController {
     
             const query: { [key: string]: any } = {}; // In case no filters are passed, we retrieve all 
 
-            let parsedStatus = 'true' === status;
+            if(status) {
+                let parsedStatus = 'true' === status;
 
-            // Setting the Status 
-            if(parsedStatus !== undefined) {
-                query["completed"] = Boolean(parsedStatus);
+                // Setting the Status 
+                if(parsedStatus !== undefined) {
+                    query["completed"] = Boolean(parsedStatus);
+                }
             }
-    
+            
             const sort: { [key: string]: SortDirection } = {}; // 1 or -1
     
             // If only 'sortBy' is provided, apply default sortOrder of 1
@@ -93,7 +93,7 @@ export class TaskController extends BaseController {
                             message: "Invalid Sort Order" 
                         });
                 }
-                sort["sortBy"] = Number(sortOrder) as SortDirection;
+                sort[sortBy as string] = Number(sortOrder) as SortDirection;
             }
     
             
@@ -121,16 +121,16 @@ export class TaskController extends BaseController {
                     .sort(sort)
                     .toArray()
     
-                return res.send(tasks);
+                return res.send({data: tasks, "body": req.query});
             }
     
             console.log(query)
             // No pagination, fetch all records
             const tasks = await collection.find(query)
+                .sort(sort)
                 .toArray();
-                //.sort(sort);
 
-            res.send(tasks);
+            res.send({data: tasks, "body": req.query});
     
         } catch (err) {
             console.log(err);
@@ -223,10 +223,13 @@ export class TaskController extends BaseController {
                 })
             }
 
-        } catch (e) {
-
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
         } finally {
-            return Promise.resolve();
+            if(connection) {
+                connection.release();
+            } 
         }
     }
 
@@ -297,16 +300,18 @@ export class TaskController extends BaseController {
                     timestamp: new Date().toISOString(),
                 })
             }
-        } catch (e) {
-
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
         } finally {
-            return Promise.resolve();
+            if(connection) {
+                connection.release();
+            } 
         }
     }
 
     async delete(req: Request, res: Response): Promise<any> {
-        let connection;
-        
+            
         try {
             const _id  = req.params.id;
 
@@ -315,14 +320,14 @@ export class TaskController extends BaseController {
                 return;
             }
 
-            connection = await this.connectDB();
+            await this.connectDB();
             const db = TaskController.client.db(this.dbName);
-            const collection: Collection= db.collection('tasks');
+            const collection: Collection = db.collection('tasks');
 
             const task = await collection.deleteOne({_id: new ObjectId(_id)});
 
             if(task) {
-                res.status(200).send({
+                res.status(204).send({
                     success: true,
                     message: `${_id} was successfully deleted.`,
                     timestamp: new Date().toISOString(),
@@ -335,16 +340,17 @@ export class TaskController extends BaseController {
                 })
             }
 
-        } catch (e) {
-
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
         } finally {
-            return Promise.resolve();
+            TaskController.client.close();
         }
     }
 
     // Helper Functions 
     private isSortByValid(sortBy): boolean {
-        const fields = ["date", "status"]; 
+        const fields = ["dueDate", "status"]; 
         return fields.includes(sortBy);
     }
 }

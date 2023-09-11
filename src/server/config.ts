@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-app.post('/login', (req, res) => {
+app.post('/api/login', (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -63,7 +63,7 @@ app.post('/login', (req, res) => {
 
             res.status(200).send({message: 'Logged in Successfully', token});
         } else {
-            res.status(400).send({message: 'Invalid Username or password', "body": req.body});
+            res.status(401).send({error: 'Invalid Username or password'});
         }
     } catch (err) {
         console.error(err);
